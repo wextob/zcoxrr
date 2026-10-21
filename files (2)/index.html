@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2b1633">
+<title>Akku &amp; Ali: Two Years in Our Little World</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:#1d0f22;color:#fff;font:bold 15px "Courier New",ui-monospace,monospace;-webkit-user-select:none;user-select:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#hud{display:flex;gap:6px;align-items:center;padding:6px;background:#2b1633}
+#hud .grow{flex:1;font-size:11px;line-height:1.25;color:#ffd6e8}
+#cnt{color:#ff8fb8;white-space:nowrap}
+#bar{height:4px;background:#4a2a45}#bar i{display:block;height:100%;width:0;background:#ff7aa8;transition:width .4s}
+button{font:inherit;color:#fff;background:#d9568a;border:0;border-bottom:4px solid #9c3560;border-radius:6px;padding:8px 12px;min-height:42px;cursor:pointer;touch-action:manipulation}
+button:hover{background:#ea6a9e}button:active{transform:translateY(2px);border-bottom-width:2px}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible{outline:3px solid #ffe27a;outline-offset:2px}
+#hud button{min-height:36px;padding:6px 8px;font-size:12px}
+#wrap{flex:1;min-height:0;position:relative;display:flex;justify-content:center;align-items:flex-start;touch-action:none}
+canvas{image-rendering:pixelated;background:#000;display:block}
+#stage{position:relative;flex:none}#stage canvas{position:absolute;left:0;top:0;width:100%;height:100%}
+#t{background:transparent;image-rendering:auto;pointer-events:none}
+.box{background:#1a1038;border:3px solid #ffd6e8;border-radius:8px;padding:10px 12px;line-height:1.45}
+#dlg,#end{position:absolute;left:8px;right:8px;bottom:8px;max-width:640px;margin:auto}
+#dlg b,#dname{color:#ff8fb8}#dtext{margin:4px 0 8px;min-height:3.9em;font-size:15px}
+.row{display:flex;gap:8px;justify-content:flex-end}
+#end{display:flex;flex-direction:column;gap:8px;background:none;border:0;padding:0}
+#etext{font-size:16px;text-align:center}.fade{animation:fd 1s}
+@keyframes fd{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#final{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:12px;background:rgba(10,5,30,.5)}
+#final h1{font-size:clamp(22px,6vw,40px);margin:0;color:#ffe9a8;text-shadow:3px 3px 0 #c2417a;animation:pl 2.4s infinite}
+#final p{margin:0 0 8px;font-size:16px;color:#fff}
+@keyframes pl{50%{transform:scale(1.05)}}
+#ctl{display:flex;justify-content:space-between;align-items:center;padding:8px 18px 12px;touch-action:none}
+#dpad{display:grid;grid-template:repeat(3,58px)/repeat(3,58px);gap:2px}
+#dpad button{padding:0;border-radius:10px;font-size:20px;min-height:0;touch-action:none}
+[data-d=up]{grid-area:1/2}[data-d=left]{grid-area:2/1}[data-d=right]{grid-area:2/3}[data-d=down]{grid-area:3/2}
+#act{width:92px;height:92px;border-radius:50%;font-size:28px;background:#e0467f;border-bottom-color:#9c2457;touch-action:none}
+body.title #hud,body.title #bar,body.title #ctl{display:none}
+.panel{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;text-align:center;background:rgba(15,8,40,.9)}
+#title{background:linear-gradient(rgba(15,8,40,.25),rgba(15,8,40,.85))}
+.panel h1{margin:0;font-size:clamp(30px,9vw,56px);color:#ffb3d1;text-shadow:3px 3px 0 #d9568a;animation:pl 3s infinite}
+.panel h2{margin:0;font-size:clamp(15px,4vw,22px);color:#ffe9a8}
+.panel p{margin:0;max-width:420px;font-size:13px;color:#d8caff}
+.panel button{min-width:220px;font-size:17px}
+.scroll{overflow:auto;touch-action:pan-y;max-height:60vh;width:min(420px,100%);display:flex;flex-direction:column;gap:6px}
+.scroll h3{margin:8px 0 0;font-size:13px;color:#ffe9a8;text-align:left}
+.scroll button{min-width:0;font-size:13px;text-align:left}
+@media (orientation:landscape) and (max-height:520px){#ctl{position:absolute;left:0;right:0;bottom:4px;padding:0 14px;pointer-events:none}#ctl button{pointer-events:auto;opacity:.8}#wrap{align-items:center}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body class="title">
+<div id="app">
+ <div id="hud"><div id="cnt">♥ 0/9</div><div id="hint" class="grow"></div>
+  <button id="bX" hidden>Exit</button><button id="bJ">Journal</button><button id="bP">Pause</button></div>
+ <div id="bar"><i></i></div>
+ <div id="wrap"><div id="stage"><canvas id="c" width="240" height="160"></canvas><canvas id="t"></canvas></div>
+  <div id="dlg" class="box" hidden><b id="dname"></b><p id="dtext"></p>
+   <div class="row"><button id="dskip" hidden>Skip</button><button id="dnext">Continue ▶</button></div></div>
+  <div id="end" hidden><div id="etext" class="box"></div><div class="row"><button id="enext">Continue ▶</button></div></div>
+  <div id="final" hidden><h1 id="ftitle"></h1><p id="fsub"></p>
+   <button id="again">Explore Our World Again</button><button id="rereplay">Replay the Letter</button></div>
+ </div>
+ <div id="ctl"><div id="dpad"><button data-d="up" aria-label="Up">▲</button><button data-d="left" aria-label="Left">◀</button><button data-d="right" aria-label="Right">▶</button><button data-d="down" aria-label="Down">▼</button></div>
+  <button id="act" aria-label="Interact">A</button></div>
+</div>
+<div id="title" class="panel"><h1 id="tname"></h1><h2 id="tsub"></h2><p id="ttag"></p>
+ <button id="bStart">Start Game</button><button id="bReset" hidden>Reset Progress</button>
+ <p>Move with the D-pad. Press A to talk, collect and play.</p></div>
+<div id="pause" class="panel" hidden><h2>Paused</h2>
+ <button id="bRes">Resume</button><button id="bSnd">Sound: On</button><button id="bJ2">Memory Journal</button><button id="bRst">Restart Game</button></div>
+<div id="journal" class="panel" hidden><h2>Memory Journal</h2><div id="jlist" class="scroll"></div>
+ <button id="jfinal">Replay Final Scene</button><button id="jclose">Close</button></div>
+<script src="config.js"></script><script src="game.js"></script>
+</body></html>
